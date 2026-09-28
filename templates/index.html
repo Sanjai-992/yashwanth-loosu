@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Employee Attendance & Task Reassignment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-badge">⚡ RFID</div>
+                <div>
+                    <h1 class="brand-title">Smart Employee Attendance &amp; Task Reassignment</h1>
+                    <p class="brand-subtitle">RFID-style keyboard attendance system</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-reset" class="btn btn-outline" title="Reset all attendance and task assignments">
+                    ↺ Reset System
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- 1. DASHBOARD SUMMARY (4 METRIC BOXES) -->
+        <section class="summary-grid">
+            <div class="summary-box box-total">
+                <div class="box-icon">👥</div>
+                <div class="box-details">
+                    <span class="box-label">TOTAL EMPLOYEES</span>
+                    <span id="metric-total" class="box-value">9</span>
+                </div>
+            </div>
+
+            <div class="summary-box box-present">
+                <div class="box-icon">🟢</div>
+                <div class="box-details">
+                    <span class="box-label">PRESENT</span>
+                    <span id="metric-present" class="box-value">0</span>
+                </div>
+            </div>
+
+            <div class="summary-box box-absent">
+                <div class="box-icon">🔴</div>
+                <div class="box-details">
+                    <span class="box-label">ABSENT</span>
+                    <span id="metric-absent" class="box-value">0</span>
+                </div>
+            </div>
+
+            <div class="summary-box box-reassigned">
+                <div class="box-icon">🔄</div>
+                <div class="box-details">
+                    <span class="box-label">TASKS REASSIGNED</span>
+                    <span id="metric-reassigned" class="box-value">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. KEYBOARD ATTENDANCE AREA -->
+        <section class="card keyboard-section">
+            <div class="section-header flex-between">
+                <div>
+                    <h2 class="section-title">⌨️ Keyboard Attendance Station (RFID Simulator)</h2>
+                    <p class="section-subtitle">Press your assigned keyboard key (<kbd>A</kbd>–<kbd>I</kbd>) on your physical keyboard, or click the buttons below to check in.</p>
+                </div>
+                <button id="btn-end-attendance" class="btn btn-danger btn-pulse">
+                    ⏱️ End Attendance Period
+                </button>
+            </div>
+
+            <!-- Visual Keyboard Key Row -->
+            <div class="keyboard-row">
+                <button class="key-btn" data-key="A" id="key-A"><span class="key-letter">A</span><span class="key-sub">Emp A</span></button>
+                <button class="key-btn" data-key="B" id="key-B"><span class="key-letter">B</span><span class="key-sub">Emp B</span></button>
+                <button class="key-btn" data-key="C" id="key-C"><span class="key-letter">C</span><span class="key-sub">Emp C</span></button>
+                <button class="key-btn" data-key="D" id="key-D"><span class="key-letter">D</span><span class="key-sub">Emp D</span></button>
+                <button class="key-btn" data-key="E" id="key-E"><span class="key-letter">E</span><span class="key-sub">Emp E</span></button>
+                <button class="key-btn" data-key="F" id="key-F"><span class="key-letter">F</span><span class="key-sub">Emp F</span></button>
+                <button class="key-btn" data-key="G" id="key-G"><span class="key-letter">G</span><span class="key-sub">Emp G</span></button>
+                <button class="key-btn" data-key="H" id="key-H"><span class="key-letter">H</span><span class="key-sub">Emp H</span></button>
+                <button class="key-btn" data-key="I" id="key-I"><span class="key-letter">I</span><span class="key-sub">Emp I</span></button>
+            </div>
+
+            <!-- Live Status Feedback Notification -->
+            <div id="live-attendance-banner" class="live-banner banner-idle">
+                <span id="banner-icon">📡</span>
+                <span id="banner-text">System is listening for RFID keyboard inputs. Press keys <kbd>A</kbd>, <kbd>C</kbd>, <kbd>D</kbd>, <kbd>E</kbd>, <kbd>G</kbd>, <kbd>H</kbd>, <kbd>I</kbd> for demo.</span>
+            </div>
+        </section>
+
+        <!-- 3. EMPLOYEE ATTENDANCE CARDS (9 EMPLOYEES) -->
+        <section class="card">
+            <div class="section-header">
+                <h2 class="section-title">📋 Employee Attendance &amp; Status Matrix (9 Employees)</h2>
+                <p class="section-subtitle">Real-time attendance cards for all registered workforce members.</p>
+            </div>
+            <div class="employee-grid" id="employee-cards-container">
+                <!-- Dynamically generated 9 cards -->
+            </div>
+        </section>
+
+        <!-- 4. TASK REASSIGNMENT PIPELINE FLOW (VISUAL ANIMATION) -->
+        <section class="card flow-section">
+            <div class="section-header">
+                <h2 class="section-title">⚡ Automated Task Reassignment Workflow</h2>
+                <p class="section-subtitle">Visual logic pipeline executed when an assigned employee is marked absent.</p>
+            </div>
+            <div class="workflow-steps">
+                <div class="flow-step">
+                    <div class="flow-step-icon">1</div>
+                    <div class="flow-step-text">Employee Attendance</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step step-highlight">
+                    <div class="flow-step-icon">2</div>
+                    <div class="flow-step-text">Employee Absent</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">3</div>
+                    <div class="flow-step-text">Find Affected Task</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">4</div>
+                    <div class="flow-step-text">Check Present Staff</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">5</div>
+                    <div class="flow-step-text">Compare Workload</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">6</div>
+                    <div class="flow-step-text">Check Required Skill</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step step-highlight">
+                    <div class="flow-step-icon">7</div>
+                    <div class="flow-step-text">Select Best Employee</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">8</div>
+                    <div class="flow-step-text">Assign Task</div>
+                </div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-step step-success">
+                    <div class="flow-step-icon">9</div>
+                    <div class="flow-step-text">Send Email</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. ABSENT EMPLOYEE TASK REASSIGNMENTS & EMAIL NOTIFICATION -->
+        <section class="card" id="reassignments-container-section">
+            <div class="section-header">
+                <h2 class="section-title">🔄 Task Reassignment &amp; Email Dispatch Center</h2>
+                <p class="section-subtitle">Automatic task reallocation results for absent employees with email notification triggers.</p>
+            </div>
+            
+            <div id="reassignments-list" class="reassignments-list">
+                <div class="empty-state">
+                    <div class="empty-icon">⏳</div>
+                    <h3>No Active Reassignments Yet</h3>
+                    <p>Check in employees using keys and click <strong>"End Attendance Period"</strong> to trigger automated task reallocation for absent staff.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. PRESENT WORKFORCE & WORKLOAD OVERVIEW -->
+        <section class="card">
+            <div class="section-header">
+                <h2 class="section-title">📊 Present Workforce Capacity</h2>
+                <p class="section-subtitle">Workload distribution and real-time availability of verified present staff.</p>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>RFID Key</th>
+                            <th>Current Workload</th>
+                            <th>Skill Specialization</th>
+                            <th>Availability Status</th>
+                            <th>Active Task</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workload-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

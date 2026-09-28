@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamlit RFID Keyboard Listener</title>
+</head>
+<body style="margin: 0; padding: 0; background: transparent; overflow: hidden;">
+    <script>
+        // Streamlit Component Messaging Protocol
+        function sendStreamlitMsg(type, data) {
+            var msg = Object.assign({
+                isStreamlitMessage: true,
+                type: type
+            }, data);
+            window.parent.postMessage(msg, "*");
+        }
+
+        function setComponentValue(val) {
+            sendStreamlitMsg("streamlit:setComponentValue", { value: val });
+        }
+
+        // Initialize component
+        sendStreamlitMsg("streamlit:componentReady", { apiVersion: 1 });
+        sendStreamlitMsg("streamlit:setFrameHeight", { height: 0 });
+
+        // Bind global keydown on top window
+        function initGlobalListener() {
+            try {
+                var targetWin = window.parent || window;
+                var targetDoc = targetWin.document || document;
+
+                // Cleanup previous handler if registered on parent
+                if (targetWin.__workforceRfidHandler) {
+                    targetDoc.removeEventListener("keydown", targetWin.__workforceRfidHandler, true);
+                }
+
+                var handler = function(e) {
+                    // Check if active element is a text input, textarea, select, button, or chatbot field
+                    var active = targetDoc.activeElement;
+                    if (active) {
+                        var tag = (active.tagName || "").toUpperCase();
+                        var isContentEditable = active.isContentEditable;
+                        var isChatInput = false;
+                        
+                        try {
+                            if (active.closest) {
+                                isChatInput = !!(
+                                    active.closest('[data-testid="stChatInput"]') || 
+                                    active.closest('.stChatInput') ||
+                                    active.closest('[data-testid="stTextInput"]') ||
+                                    active.closest('[data-testid="stTextArea"]') ||
+                                    active.closest('form')
+                                );
+                            }
+                        } catch(err) {}
+
+                        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || isContentEditable || isChatInput) {
+                            return; // Do NOT trigger attendance during chatbot typing or text editing
+                        }
+                    }
+
+                    if (!e.key) return;
+                    var keyUpper = e.key.toUpperCase();
+                    var validKeys = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
+
+                    if (validKeys.indexOf(keyUpper) !== -1) {
+                        setComponentValue({
+                            key: keyUpper,
+                            timestamp: Date.now()
+                        });
+                    }
+                };
+
+                targetDoc.addEventListener("keydown", handler, true);
+                targetWin.__workforceRfidHandler = handler;
+            } catch (err) {
+                console.warn("RFID Key listener attachment notice:", err);
+            }
+        }
+
+        initGlobalListener();
+    </script>
+</body>
+</html>
